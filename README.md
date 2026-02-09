@@ -1,4 +1,4 @@
-# Teksti-tv (Ruby terminal app)
+# Teksti-TV (Ruby terminal app)
 
 Simple terminal app for browsing YLE Teletext pages.
 
