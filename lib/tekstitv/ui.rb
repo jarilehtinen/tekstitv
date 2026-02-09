@@ -102,6 +102,8 @@ module TekstiTV
             return :prev
           elsif ch == Curses::Key::RIGHT
             return :next
+          elsif ch == 114 || ch == 82
+            return :refresh
           elsif ch == 104 || ch == 72
             return '100'
           elsif ch >= 48 && ch <= 57
@@ -115,6 +117,8 @@ module TekstiTV
             return :prev
           elsif ch.downcase == 'd'
             return :next
+          elsif ch.downcase == 'r'
+            return :refresh
           elsif ch.downcase == 'h'
             return '100'
           elsif ch == "\b"

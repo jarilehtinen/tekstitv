@@ -28,11 +28,17 @@ module TekstiTV
           action = ui.prompt_page(page: current_page)
           break if action.nil?
 
-          if action == :back
-            prev = history.pop
-            current_page = prev if prev
-            next
-          end
+        if action == :back
+          prev = history.pop
+          current_page = prev if prev
+          next
+        end
+
+        if action == :refresh
+          ui.show_loading(page: current_page)
+          Client.fetch_page(current_page, cache: text_cache, allow_api: true)
+          next
+        end
 
         if action == :prev || action == :next
           history << current_page
