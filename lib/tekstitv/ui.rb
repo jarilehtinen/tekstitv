@@ -35,7 +35,7 @@ module TekstiTV
       box_height = [Curses.lines - 2, 3].max
       box_width = [Curses.cols, 10].max
       draw_box(box_height, box_width, 0, 0)
-      draw_title("TEKSTI-TV  Page #{page}", box_width)
+      draw_title("TEKSTI-TV  Sivu #{page}", box_width)
 
       inner_width = box_width - 2
       inner_height = box_height - 2
@@ -81,7 +81,7 @@ module TekstiTV
     def prompt_page(page:)
       Curses.setpos(Curses.lines - 1, 0)
       Curses.clrtoeol
-      Curses.attron(Curses.color_pair(3)) { Curses.addstr("Page #{page} > ") }
+      Curses.attron(Curses.color_pair(3)) { Curses.addstr("Sivu #{page} > ") }
       Curses.refresh
 
       input = String.new
@@ -132,7 +132,7 @@ module TekstiTV
 
         Curses.setpos(Curses.lines - 1, 0)
         Curses.clrtoeol
-        Curses.attron(Curses.color_pair(3)) { Curses.addstr("Page #{page} > #{input}") }
+        Curses.attron(Curses.color_pair(3)) { Curses.addstr("Sivu #{page} > #{input}") }
         Curses.refresh
       end
 
@@ -151,7 +151,7 @@ module TekstiTV
     def show_loading(page:)
       Curses.setpos(Curses.lines - 1, 0)
       Curses.clrtoeol
-      Curses.attron(Curses.color_pair(3)) { Curses.addstr("Page #{page} > (loading...)") }
+      Curses.attron(Curses.color_pair(3)) { Curses.addstr("Sivu #{page} > (loading...)") }
       Curses.refresh
     end
 
@@ -192,23 +192,28 @@ module TekstiTV
 
       idx = 0
       while idx < text.length
-        match = text.index(/\b\d{3}\b/, idx)
+        match = /(\b\d{1,2}\.\d{2}\b|\b\d{3}\b)/.match(text, idx)
         if match.nil?
           Curses.attron(Curses.color_pair(1)) { Curses.addstr(text[idx..]) }
           break
         end
 
-        if match > idx
-          Curses.attron(Curses.color_pair(1)) { Curses.addstr(text[idx...match]) }
+        if match.begin(0) > idx
+          Curses.attron(Curses.color_pair(1)) { Curses.addstr(text[idx...match.begin(0)]) }
         end
 
-        number = text[match, 3]
-        if number.to_i >= 100
-          Curses.attron(Curses.color_pair(3)) { Curses.addstr(number) }
+        token = match[0]
+        if token.include?('.')
+          Curses.attron(Curses.color_pair(4)) { Curses.addstr(token) }
         else
-          Curses.attron(Curses.color_pair(1)) { Curses.addstr(number) }
+          if token.to_i >= 100
+            Curses.attron(Curses.color_pair(3)) { Curses.addstr(token) }
+          else
+            Curses.attron(Curses.color_pair(1)) { Curses.addstr(token) }
+          end
         end
-        idx = match + 3
+
+        idx = match.end(0)
       end
     end
 

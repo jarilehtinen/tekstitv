@@ -39,6 +39,13 @@ module TekstiTV
       "Error: #{e.class}: #{e.message}"
     end
 
+    # Force refresh from API and update cache + file.
+    def self.refresh_page(page_number, cache:)
+      cache.delete(page_number)
+      delete_cached_page(page_number)
+      fetch_page(page_number, cache: cache, allow_api: true)
+    end
+
     def self.read_cached_page(page_number)
       path = File.join(CACHE_DIR, "#{page_number}.json")
       return nil unless File.exist?(path)
@@ -50,6 +57,11 @@ module TekstiTV
       Dir.mkdir(CACHE_DIR) unless Dir.exist?(CACHE_DIR)
       path = File.join(CACHE_DIR, "#{page_number}.json")
       File.write(path, body)
+    end
+
+    def self.delete_cached_page(page_number)
+      path = File.join(CACHE_DIR, "#{page_number}.json")
+      File.delete(path) if File.exist?(path)
     end
 
     def self.http_get(uri)
