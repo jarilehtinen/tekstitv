@@ -3,10 +3,13 @@
 module TekstiTV
   # Environment helpers for local secrets and validation.
   module Env
-    def self.load!
-      return unless File.exist?('.env')
+    ROOT_DIR = File.expand_path('../..', __dir__)
 
-      File.readlines('.env', chomp: true).each do |line|
+    def self.load!
+      env_path = File.join(ROOT_DIR, '.env')
+      return unless File.exist?(env_path)
+
+      File.readlines(env_path, chomp: true).each do |line|
         next if line.strip.empty? || line.strip.start_with?('#')
         key, value = line.split('=', 2)
         next unless key && value
