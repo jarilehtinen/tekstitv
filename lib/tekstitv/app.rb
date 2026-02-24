@@ -54,7 +54,7 @@ module TekstiTV
         if action.match?(/^\d{3}$/)
           history << current_page
           ui.show_loading(page: action)
-          current_page = advance_to_data(action, text_cache)
+          current_page = advance_to_data(action, text_cache, force_refresh_first: true)
         end
         end
       ensure
@@ -88,12 +88,16 @@ module TekstiTV
     end
 
     # Fetches starting at page_number and skips forward until content exists.
-    def advance_to_data(page_number, cache)
+    def advance_to_data(page_number, cache, force_refresh_first: false)
       page = page_number
       attempts = 0
 
       while attempts < 900
-        content = Client.fetch_page(page, cache: cache, allow_api: true)
+        content = if force_refresh_first && attempts.zero?
+                    Client.refresh_page(page, cache: cache)
+                  else
+                    Client.fetch_page(page, cache: cache, allow_api: true)
+                  end
         return page unless content_empty?(content)
 
         next_page = page.to_i + 1
