@@ -38,7 +38,7 @@ module TekstiTV
       draw_title("TEKSTI-TV  Sivu #{page}", box_width)
 
       inner_width = box_width - 2
-      inner_height = box_height - 2
+      inner_height = box_height - 1
 
       content_width = [(inner_width * 0.7).floor, 40].max
       main_text = strip_appendix_from_text(content.to_s, appendix_lines, page)
@@ -46,14 +46,25 @@ module TekstiTV
       lines = prepare_lines(main_text, content_width)
 
       appendix_height = 0
+      has_special_appendix_items = false
       if appendix_lines && !appendix_lines.empty?
         normal_items, special_items = split_appendix_items(appendix_lines)
-        rows_needed = (normal_items.length.to_f / 3).ceil + special_items.length
+        has_special_appendix_items = special_items.any?
+        rows_needed = appendix_rows_needed(
+          normal_items: normal_items,
+          special_items: special_items,
+          inner_width: inner_width
+        )
         max_height = [inner_height - 2, 3].max
         appendix_height = [rows_needed, max_height].min
       end
-      gap = appendix_height.positive? ? 1 : 0
-      content_height = [inner_height - appendix_height - gap, 1].max
+      gap = if appendix_height.positive?
+              has_special_appendix_items ? 1 : 2
+            else
+              0
+            end
+      bottom_padding = appendix_height.positive? ? 1 : 0
+      content_height = [inner_height - appendix_height - gap - bottom_padding, 1].max
 
       render_block(
         lines,
@@ -283,8 +294,9 @@ module TekstiTV
 
       cols = 3
       cols = [cols, normal_items.length].min
+      cols = 1 if cols <= 0
       col_width = usable_width / cols
-      rows = [(normal_items.length.to_f / cols).ceil, 1].max
+      rows = normal_items.empty? ? 0 : (normal_items.length.to_f / cols).ceil
       rows = [rows, height].min
 
       start_y = offset_y
@@ -341,6 +353,29 @@ module TekstiTV
       end
 
       [normal, special]
+    end
+
+    def appendix_rows_needed(normal_items:, special_items:, inner_width:)
+      usable_width = [inner_width - 2, 40].max
+      usable_width = [usable_width, inner_width].min
+
+      cols = [3, normal_items.length].min
+      cols = 1 if cols <= 0
+
+      normal_rows = normal_items.empty? ? 0 : (normal_items.length.to_f / cols).ceil
+      return normal_rows if special_items.empty?
+
+      col_width = usable_width / cols
+      labels = special_items.map { |item| "#{item[:number]} #{item[:title]}" }
+      fits_single_special_row = special_column_positions(
+        labels: labels,
+        start_x: 0,
+        col_width: col_width,
+        gap: 0,
+        max_width: usable_width
+      )
+
+      normal_rows + (fits_single_special_row ? 1 : special_items.length)
     end
 
     def heading_line?(line)
