@@ -11,6 +11,7 @@ module TekstiTV
   module Client
     API_BASE = 'https://external.api.yle.fi/v1/teletext/pages'.freeze
     CACHE_DIR = 'cache'.freeze
+    ROOT_DIR = File.expand_path('../..', __dir__)
 
     def self.fetch_page(page_number, cache:, allow_api:)
       return cache[page_number] if cache.key?(page_number)
@@ -47,20 +48,21 @@ module TekstiTV
     end
 
     def self.read_cached_page(page_number)
-      path = File.join(CACHE_DIR, "#{page_number}.json")
+      path = File.join(ROOT_DIR, CACHE_DIR, "#{page_number}.json")
       return nil unless File.exist?(path)
 
       File.read(path)
     end
 
     def self.cache_page(page_number, body)
-      Dir.mkdir(CACHE_DIR) unless Dir.exist?(CACHE_DIR)
-      path = File.join(CACHE_DIR, "#{page_number}.json")
+      cache_dir = File.join(ROOT_DIR, CACHE_DIR)
+      Dir.mkdir(cache_dir) unless Dir.exist?(cache_dir)
+      path = File.join(cache_dir, "#{page_number}.json")
       File.write(path, body)
     end
 
     def self.delete_cached_page(page_number)
-      path = File.join(CACHE_DIR, "#{page_number}.json")
+      path = File.join(ROOT_DIR, CACHE_DIR, "#{page_number}.json")
       File.delete(path) if File.exist?(path)
     end
 
