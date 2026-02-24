@@ -257,11 +257,7 @@ module TekstiTV
 
       heading_indices = []
       unless preserve_indent
-        number_lines = aligned.count { |line| line.match?(/\b\d{3}\b/) }
-        ratio = number_lines.to_f / [aligned.length, 1].max
-        unless ratio >= 0.1 || number_lines >= 3
-          heading_indices = aligned.each_index.select { |i| heading_line?(aligned[i]) }.first(2)
-        end
+        heading_indices = aligned.each_index.select { |i| heading_line?(aligned[i]) }.first(2)
       end
 
       if heading_indices.empty?
