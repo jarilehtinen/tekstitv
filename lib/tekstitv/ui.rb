@@ -151,7 +151,7 @@ module TekstiTV
     def show_loading(page:)
       Curses.setpos(Curses.lines - 1, 0)
       Curses.clrtoeol
-      Curses.attron(Curses.color_pair(3)) { Curses.addstr("Sivu #{page} > (loading...)") }
+      Curses.attron(Curses.color_pair(3)) { Curses.addstr("Sivu #{page} > (ladataan...)") }
       Curses.refresh
     end
 
