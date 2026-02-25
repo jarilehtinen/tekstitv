@@ -147,8 +147,6 @@ module TekstiTV
         Curses.refresh
       end
 
-      Curses.curs_set(0)
-
       input = input.strip
       return nil if input.downcase == 'q'
 
@@ -157,6 +155,10 @@ module TekstiTV
       else
         page
       end
+    rescue Interrupt
+      nil
+    ensure
+      Curses.curs_set(0)
     end
 
     def show_loading(page:)

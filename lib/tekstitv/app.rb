@@ -57,6 +57,8 @@ module TekstiTV
           current_page = advance_to_data(action, text_cache, force_refresh_first: true)
         end
         end
+      rescue Interrupt
+        nil
       ensure
         ui.shutdown
       end
